@@ -22,13 +22,16 @@ export class GameScene extends Phaser.Scene {
     this.scoreText = this.add.text(16, 16, 'Puntos: 0', { fontFamily: 'system-ui', fontSize: '22px', color: '#ffffff' }).setDepth(1);
     this.keys = this.input.keyboard!.addKeys({ left: 'LEFT', right: 'RIGHT', a: 'A', d: 'D', space: 'SPACE' }) as typeof this.keys;
     const move = (pointer: Phaser.Input.Pointer) => {
-      if (pointer.isDown && !this.ended) this.player.x = clampPlayer(pointer.x);
+      if (!this.ended) this.player.x = clampPlayer(pointer.x);
     };
     this.input.on('pointerdown', move);
-    this.input.on('pointermove', move);
+    const drag = (pointer: Phaser.Input.Pointer) => {
+      if (pointer.isDown) move(pointer);
+    };
+    this.input.on('pointermove', drag);
     this.events.once(Phaser.Scenes.Events.SHUTDOWN, () => {
       this.input.off('pointerdown', move);
-      this.input.off('pointermove', move);
+      this.input.off('pointermove', drag);
     });
   }
 
