@@ -1,0 +1,9 @@
+:root { color-scheme: dark; font-family: system-ui, sans-serif; background: #101827; color: #e5eefb; }
+body { margin: 0; }
+main { max-width: 600px; margin: auto; padding: 16px; text-align: center; }
+h1 { margin: 0; color: #66ead2; }
+p { line-height: 1.5; }
+#game { width: 100%; height: min(70vh, 640px); touch-action: none; }
+#game canvas { display: block; margin: auto; }
+button { margin-top: 16px; padding: 12px 24px; border: 0; border-radius: 8px; background: #66ead2; color: #101827; font: inherit; cursor: pointer; }
+button:focus-visible { outline: 3px solid white; outline-offset: 4px; }
