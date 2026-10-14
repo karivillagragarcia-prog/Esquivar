@@ -39,21 +39,29 @@ try {
     const y = layout.canvas.y + layout.canvas.height * 0.8;
     await page.touchscreen.tap(x, y);
     await page.waitForTimeout(50);
-    const playerX = await page.evaluate(async () => {
+    const tappedX = await page.evaluate(async () => {
       const { game } = await import(document.querySelector('script[src*="/src/main.ts"]').src);
       return game.scene.getScene('Game').player.x;
     });
-    assert.ok(playerX > 300, `el toque se convierte a coordenadas del juego: ${playerX}, ${JSON.stringify(layout)}`);
+    assert.equal(tappedX, 240, 'apoyar el dedo no hace saltar la pelota');
     const touch = await context.newCDPSession(page);
-    await touch.send('Input.dispatchTouchEvent', { type: 'touchStart', touchPoints: [{ x, y }] });
-    await touch.send('Input.dispatchTouchEvent', { type: 'touchMove', touchPoints: [{ x: layout.canvas.x + layout.canvas.width * 0.2, y }] });
-    await touch.send('Input.dispatchTouchEvent', { type: 'touchEnd', touchPoints: [] });
+    await touch.send('Input.dispatchTouchEvent', { type: 'touchStart', touchPoints: [{ x: layout.canvas.x + layout.canvas.width * 0.5, y }] });
     await page.waitForTimeout(50);
-    const draggedX = await page.evaluate(async () => {
+    await touch.send('Input.dispatchTouchEvent', { type: 'touchMove', touchPoints: [{ x, y }] });
+    await page.waitForTimeout(50);
+    const rightX = await page.evaluate(async () => {
       const { game } = await import(document.querySelector('script[src*="/src/main.ts"]').src);
       return game.scene.getScene('Game').player.x;
     });
-    assert.ok(draggedX < 150, 'arrastrar mueve el jugador');
+    assert.ok(rightX > 300, 'arrastrar a la derecha mueve la pelota');
+    await touch.send('Input.dispatchTouchEvent', { type: 'touchMove', touchPoints: [{ x: layout.canvas.x + layout.canvas.width * 0.2, y }] });
+    await page.waitForTimeout(50);
+    await touch.send('Input.dispatchTouchEvent', { type: 'touchEnd', touchPoints: [] });
+    const leftX = await page.evaluate(async () => {
+      const { game } = await import(document.querySelector('script[src*="/src/main.ts"]').src);
+      return game.scene.getScene('Game').player.x;
+    });
+    assert.ok(leftX < 150, 'arrastrar a la izquierda mueve la pelota');
     // Rota el mismo contexto para comprobar la actualización del canvas.
     await page.setViewportSize({ width: height, height: width });
     await page.waitForTimeout(150);
@@ -68,8 +76,31 @@ try {
       return { elapsed: scene.elapsed, ended: scene.ended };
     });
     assert.ok(restart.elapsed < 1 && !restart.ended);
+    const collision = await page.evaluate(async () => {
+      const { game } = await import(document.querySelector('script[src*="/src/main.ts"]').src);
+      const scene = game.scene.getScene('Game');
+      scene.progress = 41;
+      scene.player.x = 240 - 195 * 0.55;
+      scene.update(0, 50);
+      return { ended: scene.ended, won: scene.won };
+    });
+    assert.deepEqual(collision, { ended: true, won: false });
+    await page.getByRole('button', { name: 'Reiniciar partida' }).tap();
+    await page.waitForTimeout(100);
+    const completion = await page.evaluate(async () => {
+      const { game } = await import(document.querySelector('script[src*="/src/main.ts"]').src);
+      const { LEVEL_ONE } = await import('/src/game/rules.ts');
+      const scene = game.scene.getScene('Game');
+      for (let i = 0; i < 650 && !scene.ended; i++) {
+        const next = LEVEL_ONE.find(obstacle => obstacle.distance + 2 >= scene.progress);
+        scene.player.x = 240 + 195 * (next && next.lane <= 0 ? 0.7 : -0.7);
+        scene.update(i * 50, 50);
+      }
+      return { ended: scene.ended, won: scene.won, progress: scene.progress };
+    });
+    assert.deepEqual(completion, { ended: true, won: true, progress: 300 });
     assert.deepEqual(errors, []);
-    console.log(`PASS ${width}x${height}: pantalla, toque, rotación y reinicio`);
+    console.log(`PASS ${width}x${height}: pantalla, arrastre, rotación, derrota, reinicio y victoria`);
     await context.close();
   }
 } finally {

@@ -1,21 +1,32 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { clampPlayer, difficulty, overlaps, WIDTH, PLAYER_SIZE } from '../src/game/rules';
+import { clampPlayer, playerLane, project, hitsObstacle, LEVEL_ONE, LEVEL_LENGTH, FORWARD_SPEED, WIDTH, PLAYER_Y, ROAD_HALF_WIDTH, BALL_RADIUS } from '../src/game/rules';
 
-test('el jugador permanece dentro de la pantalla', () => {
-  assert.equal(clampPlayer(-100), PLAYER_SIZE / 2);
-  assert.equal(clampPlayer(1000), WIDTH - PLAYER_SIZE / 2);
-  assert.equal(clampPlayer(240), 240);
+test('la pelota permanece dentro de la plataforma, incluyendo su radio', () => {
+  assert.equal(clampPlayer(-100), WIDTH / 2 - ROAD_HALF_WIDTH + BALL_RADIUS);
+  assert.equal(clampPlayer(1000), WIDTH / 2 + ROAD_HALF_WIDTH - BALL_RADIUS);
+  assert.equal(playerLane(WIDTH / 2), 0);
 });
-test('las colisiones distinguen contacto, separación y solapamiento', () => {
-  assert.equal(overlaps(100, 100, 100, 100), true);
-  assert.equal(overlaps(100, 100, 130, 130), true);
-  assert.equal(overlaps(100, 100, 131, 100), false);
-  assert.equal(overlaps(100, 100, 100, 200), false);
+test('la perspectiva acerca los objetos sobre el suelo y aumenta su tamaño', () => {
+  const far = project(0.55, 80), near = project(0.55, 10);
+  assert.ok(near.y > far.y && near.scale > far.scale && near.x > far.x);
+  assert.equal(project(0, 0).y, PLAYER_Y);
+  assert.equal(project(0, 0).x, WIDTH / 2);
 });
-test('la dificultad aumenta y respeta los límites', () => {
-  assert.deepEqual(difficulty(-1), difficulty(0));
-  assert.ok(difficulty(30).speed > difficulty(0).speed);
-  assert.ok(difficulty(30).interval < difficulty(0).interval);
-  assert.deepEqual(difficulty(1000), { speed: 480, interval: 260 });
+test('la colisión usa la posición en la plataforma y el avance entre fotogramas', () => {
+  const obstacle = LEVEL_ONE[0];
+  assert.equal(hitsObstacle(-0.55, 40, 43, obstacle), true);
+  assert.equal(hitsObstacle(0.55, 40, 43, obstacle), false);
+  assert.equal(hitsObstacle(-0.55, 10, 11, obstacle), false);
+  assert.equal(hitsObstacle(-0.55, 44, 45, obstacle), false);
+});
+test('el nivel fácil ofrece tiempo de reacción y un paso libre en cada fila', () => {
+  assert.ok(LEVEL_ONE[0].distance / FORWARD_SPEED >= 4);
+  for (let i = 0; i < LEVEL_ONE.length; i++) {
+    const obstacle = LEVEL_ONE[i];
+    assert.ok(obstacle.distance < LEVEL_LENGTH);
+    if (i) assert.ok((obstacle.distance - LEVEL_ONE[i - 1].distance) / FORWARD_SPEED >= 3);
+    const freeLane = obstacle.lane <= 0 ? 0.7 : -0.7;
+    assert.equal(hitsObstacle(freeLane, obstacle.distance - 1, obstacle.distance + 1, obstacle), false);
+  }
 });

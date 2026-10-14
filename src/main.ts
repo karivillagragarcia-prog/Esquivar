@@ -7,10 +7,10 @@ import { App } from '@capacitor/app';
 export const game = new Phaser.Game({
   type: Phaser.AUTO,
   parent: 'game',
-  backgroundColor: '#17243a',
+  backgroundColor: '#14634b',
   scale: { mode: Phaser.Scale.FIT, autoCenter: Phaser.Scale.CENTER_BOTH, width: WIDTH, height: HEIGHT },
   scene: [GameScene],
-  render: { antialias: false },
+  render: { antialias: true },
 });
 document.querySelector('#restart')?.addEventListener('click', () => game.scene.start('Game'));
 

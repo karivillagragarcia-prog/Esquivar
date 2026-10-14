@@ -1,11 +1,11 @@
 # Esquivar para Android
 
-Juego 2D con TypeScript, Phaser y Capacitor. La aplicación Android incluye el juego y puede ejecutarse sin conexión. La vista web permite iterar durante el desarrollo.
+Juego de una pelota roja que avanza automáticamente sobre una plataforma en perspectiva, con TypeScript, Phaser y Capacitor. El primer nivel transcurre en una selva de colores vivos y dura unos 30 segundos, con ocho obstáculos separados y una meta. Los bloques están sobre el suelo; desliza a izquierda y derecha para esquivarlos. La aplicación Android incluye el juego y puede ejecutarse sin conexión. La vista web permite iterar durante el desarrollo.
 
 ## Compatibilidad y controles
 
 - Android 7.0 (API 24) o posterior, con Android System WebView actualizado.
-- Arrastra o toca dentro del juego para mover al jugador. En PC, flechas o A/D.
+- Arrastra dentro del juego para mover la pelota a izquierda o derecha. Apoyar el dedo no cambia su posición. En PC, flechas o A/D.
 - Diseño adaptable a teléfonos y tabletas, vertical y horizontal, con áreas seguras y botón de al menos 48 px.
 - El área de juego conserva su proporción para que las reglas sean iguales en todos los tamaños. Pueden quedar márgenes en pantallas alargadas.
 - La partida pausa cuando la aplicación pasa a segundo plano.
@@ -46,7 +46,7 @@ npx playwright install chromium
 npm run test:mobile
 ```
 
-Se comprueban seis tamaños, coordenadas táctiles, rotación, reinicio y errores JavaScript. Puedes indicar `GAME_URL` y `CHROMIUM_PATH` para usar otro puerto o un Chromium instalado. Es una simulación de pantalla y entrada táctil en navegador; no sustituye una prueba en Android.
+Se comprueban seis tamaños, arrastre táctil, áreas seguras, rotación, colisión, reinicio, victoria y errores JavaScript. Puedes indicar `GAME_URL` y `CHROMIUM_PATH` para usar otro puerto o un Chromium instalado. Es una simulación de pantalla y entrada táctil en navegador; no sustituye una prueba en Android.
 
 ## Organización
 
