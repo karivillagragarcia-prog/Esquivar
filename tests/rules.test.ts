@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { clampPlayer, playerLane, project, hitsObstacle, LEVEL_ONE, LEVEL_LENGTH, FORWARD_SPEED, WIDTH, PLAYER_Y, ROAD_HALF_WIDTH, BALL_RADIUS } from '../src/game/rules';
+import { clampPlayer, playerLane, project, hitsObstacle, LEVEL_ONE, LEVEL_LENGTH, FORWARD_SPEED, WIDTH, PLAYER_Y, ROAD_HALF_WIDTH, BALL_RADIUS, viewLayout } from '../src/game/rules';
 
 test('la pelota permanece dentro de la plataforma, incluyendo su radio', () => {
   assert.equal(clampPlayer(-100), WIDTH / 2 - ROAD_HALF_WIDTH + BALL_RADIUS);
@@ -28,5 +28,14 @@ test('el nivel fácil ofrece tiempo de reacción y un paso libre en cada fila', 
     if (i) assert.ok((obstacle.distance - LEVEL_ONE[i - 1].distance) / FORWARD_SPEED >= 3);
     const freeLane = obstacle.lane <= 0 ? 0.7 : -0.7;
     assert.equal(hitsObstacle(freeLane, obstacle.distance - 1, obstacle.distance + 1, obstacle), false);
+  }
+});
+
+test('la perspectiva conserva carriles y escala horizontal al cambiar la altura', () => {
+  const layouts = [viewLayout(720), viewLayout(1100)];
+  for (const layout of layouts) {
+    assert.equal(project(0, 0, layout).y, layout.height * 0.84);
+    assert.ok(project(0, 90, layout).y < project(0, 10, layout).y);
+    assert.equal(project(0.55, 0, layout).x, 240 + 195 * 0.55);
   }
 });

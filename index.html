@@ -3,15 +3,14 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-    <meta name="theme-color" content="#101827" />
+    <meta name="theme-color" content="#123e30" />
     <title>Esquivar</title>
   </head>
   <body>
     <main>
-      <h1>Esquivar</h1>
-      <p>Desliza a izquierda o derecha. ¡Lleva la pelota roja hasta la meta!</p>
-      <div id="game" aria-label="Juego Esquivar"></div>
-      <button id="restart" type="button">Reiniciar partida</button>
+      <div id="game" aria-label="Esquivar: desliza a izquierda o derecha para mover la pelota roja"></div>
+      <button id="restart" type="button" aria-label="Reiniciar partida" title="Reiniciar partida">↻</button>
+      <div id="rotate" role="status"><strong>Gira tu teléfono</strong><p>Esquivar se juega en vertical. La partida está pausada mientras giras la pantalla.</p></div>
     </main>
     <script type="module" src="/src/main.ts"></script>
   </body>

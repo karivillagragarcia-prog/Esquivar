@@ -4,6 +4,6 @@ const config: CapacitorConfig = {
   appId: 'com.esquivar.game',
   appName: 'Esquivar',
   webDir: 'dist',
-  android: { backgroundColor: '#101827' },
+  android: { backgroundColor: '#123e30' },
 };
 export default config;
